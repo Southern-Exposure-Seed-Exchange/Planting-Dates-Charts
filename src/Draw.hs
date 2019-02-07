@@ -92,7 +92,7 @@ rangeBox DateRange {..} =
 
 -- | Draw a transparent rectangle with no border.
 emptyRangeBox :: Integer -> Diagram B
-emptyRangeBox w = rect (fromIntegral w) boxHeight # lw 0 # showOrigin
+emptyRangeBox w = rect (fromIntegral w) boxHeight # lw 0
 
 
 
