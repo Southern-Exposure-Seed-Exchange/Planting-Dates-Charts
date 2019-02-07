@@ -1,0 +1,66 @@
+---
+
+name:
+    planting-dates
+version:
+    0.1.0.0
+github:
+    "Southern-Exposure-Seed-Exchange/planting-dates-charts"
+license:
+    GPL-3.0
+author:
+    "Pavan Rikhi"
+maintainer:
+    "pavan.rikhi@gmail.com"
+copyright:
+    "GPL-3.0"
+
+extra-source-files:
+    - README.md
+    - CHANGELOG.md
+
+# Metadata used when publishing your package
+synopsis:
+    Generate Charts Showing the Planting Dates of Various Plants in Multiple
+    Zones.
+category:
+    Graphics
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:
+    Please see the README on GitHub at
+    <https://github.com/Southern-Exposure-Seed-Exchange/planting-dates-charts#readme>
+
+dependencies:
+    - base >= 4.7 && < 5
+
+library:
+    source-dirs: src
+
+executables:
+    planting-dates-exe:
+        main:
+            Main.hs
+        source-dirs:
+            app
+        ghc-options:
+            - -threaded
+            - -rtsopts
+            - -with-rtsopts=-N
+        dependencies:
+            - planting-dates
+
+tests:
+    planting-dates-test:
+        main:
+            Spec.hs
+        source-dirs:
+            test
+        ghc-options:
+            - -threaded
+            - -rtsopts
+            - -with-rtsopts=-N
+        dependencies:
+            - planting-dates
