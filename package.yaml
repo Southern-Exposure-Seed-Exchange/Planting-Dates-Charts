@@ -35,12 +35,17 @@ description:
 
 dependencies:
     - base >= 4.7 && < 5
+    - bytestring
+    - containers
+    - lens
+    - text
+    - xlsx
 
 library:
     source-dirs: src
 
 executables:
-    planting-dates-exe:
+    planting-dates:
         main:
             Main.hs
         source-dirs:
