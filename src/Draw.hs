@@ -16,7 +16,9 @@ import           Diagrams.Prelude        hiding ( start
 import           Diagrams.Backend.SVG           ( B
                                                 , renderSVG
                                                 )
-import           Diagrams.Color.XKCD            ( brownyOrange )
+import           Diagrams.Color.XKCD            ( brownyOrange
+                                                , slateGrey
+                                                )
 import           Graphics.SVGFonts              ( textSVG_
                                                 , TextOpts(..)
                                                 )
@@ -67,6 +69,10 @@ boxHeight = 5
 -- | The Space Between Each Row & the Dividers.
 rowPadding :: Num a => a
 rowPadding = 3
+
+-- | The Height of the Axis Label's Text
+labelTextHeight :: Double
+labelTextHeight = (boxHeight + 2 * rowPadding) * 0.66
 
 -- | Render the X-axis Grid Lines
 renderGrid :: Double -> Double -> Diagram B
@@ -131,9 +137,8 @@ renderRowSep w =
 
 -- | Draw a Plant's row.
 renderPlant :: Plant -> Diagram B
-renderPlant p =
-    alignR $ renderPlantLabel (plant p) ||| strutX 5 ||| renderDateRanges
-        (ranges p)
+renderPlant p = alignR $ hcat
+    [renderPlantLabel (plant p), strutX 5, renderDateRanges (ranges p)]
 
 
 -- | Render a right-aligned label for the plant.
@@ -141,16 +146,22 @@ renderPlantLabel :: Text -> Diagram B
 renderPlantLabel = renderText
 
 renderText :: Text -> Diagram B
-renderText t = svgText ((boxHeight + 2 * rowPadding) * 0.66) t futuraMedium # fc black
+renderText t = svgText labelTextHeight t futuraMedium # fc black
 
 renderHeader :: Text -> Text -> Diagram B
 renderHeader title subtitle =
-    headerText 20 title
-        #   centerX # fc black
-        === strutY (rowPadding * 0.5)
-        === headerText 10 subtitle
-        #   centerX # fc black
-        === strutY (rowPadding * 1.5)
+    let topHeader =
+                headerText (labelTextHeight * 2.5) title # fc black # centerX
+        subHeader =
+                headerText (labelTextHeight * 1.25) subtitle
+                    # fcA slateGrey
+                    # centerX
+    in  vcat
+            [ topHeader
+            , strutY (rowPadding * 0.35)
+            , subHeader
+            , strutY (rowPadding * 1.75)
+            ]
     where headerText n t = svgText n t futuraHeavy
 
 
