@@ -13,14 +13,14 @@ import           Diagrams.Prelude        hiding ( start
                                                 , end
                                                 )
 import           Diagrams.Backend.SVG
+import           Graphics.SVGFonts              ( textSVG )
 import           Types
 
 -- | Render all the plants to the given SVG file.
 renderPlants :: FilePath -> [Plant] -> IO ()
 renderPlants outputFile ps = do
-    let rects          = map renderPlant ps
-        size_          = mkSizeSpec2D Nothing Nothing
-        barsWithLabels = map alignL rects
+    let size_          = mkSizeSpec2D Nothing Nothing
+        barsWithLabels = map renderPlant ps
         maximumWidth   = maximum_ $ map width barsWithLabels
     renderSVG outputFile size_ $ vsep 5 $ intersperse
         (renderRowSep maximumWidth)
@@ -38,12 +38,14 @@ renderRowSep w = strokeP (fromVertices [p2 (0, 0), p2 (w, 0)]) # lw 0.2
 
 -- | Draw a Plant's row.
 renderPlant :: Plant -> Diagram B
-renderPlant p = renderPlantLabel (plant p) ||| renderDateRanges (ranges p)
+renderPlant p =
+    alignR $ renderPlantLabel (plant p) ||| renderDateRanges (ranges p)
 
 
 -- | Render a right-aligned label for the plant.
 renderPlantLabel :: Text -> Diagram B
-renderPlantLabel = scale boxHeight . alignedText 1 0.5 . unpack
+renderPlantLabel t =
+    stroke (textSVG (unpack t) (boxHeight * 1.5)) # fc black # lw none # alignR
 
 -- | Draw Bars for Date Ranges by joining empty and filled rectangles
 -- horiztonally.
