@@ -16,7 +16,6 @@ import           Control.Lens                   ( (^.)
 import           Control.Monad                  ( join )
 import qualified Data.ByteString.Lazy          as L
 import           Data.Maybe                     ( mapMaybe
-                                                , listToMaybe
                                                 , maybeToList
                                                 )
 import           Data.Text                      ( Text )
@@ -48,10 +47,13 @@ parsePlant (_, cells) =
     rangeFromCells x y =
         join $ parseDateRange <$> maybeTextColumn x <*> maybeTextColumn y
     maybeTextColumn :: Int -> Maybe Text
-    maybeTextColumn n =
-        listToMaybe (take 1 $ drop n cells) >>= _cellValue . snd >>= \case
-            CellText t -> Just t
-            _          -> Nothing
+    maybeTextColumn n = runner cells >>= \case
+        CellText t -> Just t
+        _          -> Nothing
+      where
+        runner cs = case cs of
+            (i, v) : rest -> if i - 1 == n then _cellValue v else runner rest
+            []            -> Nothing
 
 -- | Parse a Start & End Date.
 parseDateRange :: Text -> Text -> Maybe DateRange
