@@ -38,8 +38,8 @@ renderPlants outputFile ps =
         (chartWidth, chartHeight) = (width chartRows, height chartRows)
         chartWithMonthLabels =
             alignTR
-                    (  alignBR renderMonthLabels
-                    <> alignTR
+                    (  alignTR renderMonthLabels
+                    <> alignBR
                            (  alignR chartRows
                            <> renderGrid chartWidth chartHeight
                            )
