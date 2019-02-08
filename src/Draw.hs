@@ -41,9 +41,9 @@ boxHeight = 5
 
 -- | The Space Between Each Row & the Dividers.
 rowPadding :: Num a => a
-rowPadding = 5
+rowPadding = 3
 
--- | Render the X-axis Scale & Grid Lines
+-- | Render the X-axis Grid Lines
 renderGrid :: Double -> Double -> Diagram B
 renderGrid w h =
     let
@@ -63,7 +63,7 @@ renderGrid w h =
     in
         alignBR baseLine <> alignBR monthLines
 
--- | Draw a row seperator.
+-- | Draw a row separator.
 renderRowSep :: Double -> Diagram B
 renderRowSep w =
     strokeP (fromVertices [p2 (0, 0), p2 (w, 0)])
@@ -86,7 +86,7 @@ renderPlantLabel = alignR . renderText
 renderText :: Text -> Diagram B
 renderText t =
     textSVG'
-            with { textHeight = boxHeight * 1.25
+            with { textHeight = (boxHeight + 2 * rowPadding) * 0.66
                  , textFont   = unsafePerformIO lin2
                  }
             (unpack t)
@@ -96,7 +96,7 @@ renderText t =
         # alignR
 
 -- | Draw Bars for Date Ranges by joining empty and filled rectangles
--- horiztonally.
+-- horizontally.
 renderDateRanges :: [DateRange] -> Diagram B
 renderDateRanges ranges_ = case ranges_ of
     []            -> mempty
