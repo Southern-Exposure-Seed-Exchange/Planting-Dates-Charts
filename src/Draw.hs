@@ -12,7 +12,10 @@ import           Data.Text                      ( Text
 import           Diagrams.Prelude        hiding ( start
                                                 , end
                                                 )
-import           Diagrams.Backend.SVG
+import           Diagrams.Backend.SVG           ( B
+                                                , renderSVG
+                                                )
+import           Diagrams.Color.XKCD            ( brownyOrange )
 import           Graphics.SVGFonts              ( textSVG )
 import           Types
 
@@ -22,7 +25,7 @@ renderPlants outputFile ps = do
     let size_          = mkSizeSpec2D Nothing Nothing
         barsWithLabels = map renderPlant ps
         maximumWidth   = maximum_ $ map width barsWithLabels
-    renderSVG outputFile size_ $ vsep 5 $ intersperse
+    renderSVG outputFile size_ $ pad 1.1 $ centerXY $ vsep 5 $ intersperse
         (renderRowSep maximumWidth)
         barsWithLabels
     where maximum_ xs = if null xs then 0 else maximum xs
@@ -34,7 +37,12 @@ boxHeight = 5
 
 -- | Draw a row seperator.
 renderRowSep :: Double -> Diagram B
-renderRowSep w = strokeP (fromVertices [p2 (0, 0), p2 (w, 0)]) # lw 0.2
+renderRowSep w =
+    strokeP (fromVertices [p2 (0, 0), p2 (w, 0)])
+        # lw 0.2
+        # alignR
+        # opacity 0.45
+        # lcA brownyOrange
 
 -- | Draw a Plant's row.
 renderPlant :: Plant -> Diagram B
