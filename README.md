@@ -1,5 +1,7 @@
 # Planting Dates Chart Generator
 
+[![Build Status](https://travis-ci.org/Southern-Exposure-Seed-Exchange/Planting-Dates-Charts.svg?branch=master)](https://travis-ci.org/Southern-Exposure-Seed-Exchange/Planting-Dates-Charts)
+
 This is a script that takes an excel workbook and uses it to generate an SVG
 chart of planting dates.
 
