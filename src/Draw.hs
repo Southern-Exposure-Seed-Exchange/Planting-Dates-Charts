@@ -29,39 +29,6 @@ import           System.IO.Unsafe               ( unsafePerformIO )
 import           Paths_planting_dates           ( getDataFileName )
 import           Types
 
--- | Render all the plants to the given SVG file.
-renderPlants :: FilePath -> Text -> Text -> [Plant] -> IO ()
-renderPlants outputFile title subtitle ps =
-    let
-        size_        = mkSizeSpec2D Nothing Nothing
-        plantRows    = map renderPlant ps
-        rowSeparator = renderRowSep $ maximum_ $ map width plantRows
-        chartRows    = vsep
-            rowPadding
-            (rowSeparator : intersperse rowSeparator plantRows ++ [rowSeparator]
-            )
-        (chartWidth, chartHeight) = (width chartRows, height chartRows)
-        chartWithMonthLabels =
-            alignTR
-                    (  alignTR renderMonthLabels
-                    <> alignBR
-                           (  alignR chartRows
-                           <> renderGrid chartWidth chartHeight
-                           )
-                    )
-                <> alignBR renderMonthLabels
-        chartWithTitle =
-            (renderHeader title subtitle # centerX)
-                === (chartWithMonthLabels # centerX)
-        finalChart = (chartWithTitle # centerXY # pad 1.1)
-    in
-        renderSVG outputFile size_ $ withBackground finalChart
-  where
-    maximum_ xs = if null xs then 0 else maximum xs
-    withBackground diagram =
-        diagram <> rect (width diagram) (height diagram) # fc white # lw 0.75
-
-
 -- | The Height of the Date Range Boxes.
 boxHeight :: Num a => a
 boxHeight = 5
@@ -73,6 +40,58 @@ rowPadding = 3
 -- | The Height of the Axis Label's Text
 labelTextHeight :: Double
 labelTextHeight = (boxHeight + 2 * rowPadding) * 0.66
+
+
+-- | Render all the plants to the given SVG file.
+renderPlants :: FilePath -> Text -> Text -> [Plant] -> IO ()
+renderPlants outputFile title subtitle ps =
+    let
+        size_        = mkSizeSpec2D Nothing Nothing
+        plantRows    = map renderPlant ps
+        rowSeparator = renderRowSep $ maximum_ $ map width plantRows
+        chartRows =
+            rowSeparator : intersperse rowSeparator plantRows ++ [rowSeparator]
+        finalChart =
+            chartRows
+                # vsep rowPadding
+                # withGrid
+                # withTitle
+                # centerXY
+                # pad 1.1
+                # withBackground
+    in
+        renderSVG outputFile size_ finalChart
+  where
+    maximum_ xs = if null xs then 0 else maximum xs
+    withGrid diagram =
+        alignTR
+                (  alignTR renderMonthLabels
+                <> alignBR
+                       (  alignR diagram
+                       <> renderGrid (width diagram) (height diagram)
+                       )
+                )
+            <> alignBR renderMonthLabels
+    withTitle diagram =
+        (renderHeader title subtitle # centerX) === (diagram # centerX)
+    withBackground diagram =
+        diagram <> rect (width diagram) (height diagram) # fc white # lw 0.75
+
+renderHeader :: Text -> Text -> Diagram B
+renderHeader title subtitle =
+    let topHeader =
+                headerText (labelTextHeight * 2.5) title # fc black # centerX
+        subHeader =
+                headerText (labelTextHeight * 1.25) subtitle
+                    # fcA slateGrey
+                    # centerX
+    in  vcat
+            [ topHeader
+            , strutY (rowPadding * 0.35)
+            , subHeader
+            , strutY (rowPadding * 1.75)
+            ]
+    where headerText n t = svgText n t futuraHeavy
 
 -- | Render the X-axis Grid Lines
 renderGrid :: Double -> Double -> Diagram B
@@ -150,22 +169,6 @@ renderPlantLabel = renderText
 
 renderText :: Text -> Diagram B
 renderText t = svgText labelTextHeight t futuraMedium # fc black
-
-renderHeader :: Text -> Text -> Diagram B
-renderHeader title subtitle =
-    let topHeader =
-                headerText (labelTextHeight * 2.5) title # fc black # centerX
-        subHeader =
-                headerText (labelTextHeight * 1.25) subtitle
-                    # fcA slateGrey
-                    # centerX
-    in  vcat
-            [ topHeader
-            , strutY (rowPadding * 0.35)
-            , subHeader
-            , strutY (rowPadding * 1.75)
-            ]
-    where headerText n t = svgText n t futuraHeavy
 
 
 svgText :: Double -> Text -> IO (PreparedFont Double) -> Diagram B
