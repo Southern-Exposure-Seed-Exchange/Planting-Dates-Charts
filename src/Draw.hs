@@ -111,9 +111,13 @@ renderMonthLines h =
                     # lc brown
                     # opacity 0.6
                     # dashing [1, 1] 0
-    in  verticalLine ||| hcat
-            (map (\w_ -> alignR $ strutX (fromIntegral w_) ||| verticalLine)
-                 daysPerMonth
+    in
+        hcat
+            (map
+                (\w_ -> alignR $ verticalLine ||| strutX
+                    (fromIntegral w_ - width verticalLine)
+                )
+                daysPerMonth
             )
 
 -- | Draw a row separator.
