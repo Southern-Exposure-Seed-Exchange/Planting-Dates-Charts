@@ -5,6 +5,7 @@
 {-# LANGUAGE TypeFamilies #-}
 module Draw where
 
+import           Data.List                      ( intersperse )
 import           Data.Text                      ( Text
                                                 , unpack
                                                 )
@@ -17,13 +18,23 @@ import           Types
 -- | Render all the plants to the given SVG file.
 renderPlants :: FilePath -> [Plant] -> IO ()
 renderPlants outputFile ps = do
-    let rects = map renderPlant ps
-        size_ = mkSizeSpec2D Nothing Nothing
-    renderSVG outputFile size_ $ vsep 3 $ map alignL rects
+    let rects          = map renderPlant ps
+        size_          = mkSizeSpec2D Nothing Nothing
+        barsWithLabels = map alignL rects
+        maximumWidth   = maximum_ $ map width barsWithLabels
+    renderSVG outputFile size_ $ vsep 5 $ intersperse
+        (renderRowSep maximumWidth)
+        barsWithLabels
+    where maximum_ xs = if null xs then 0 else maximum xs
 
 
+-- | The Height of the Date Range Boxes.
 boxHeight :: Num a => a
 boxHeight = 5
+
+-- | Draw a row seperator.
+renderRowSep :: Double -> Diagram B
+renderRowSep w = strokeP (fromVertices [p2 (0, 0), p2 (w, 0)]) # lw 0.2
 
 -- | Draw a Plant's row.
 renderPlant :: Plant -> Diagram B
@@ -33,7 +44,6 @@ renderPlant p = renderPlantLabel (plant p) ||| renderDateRanges (ranges p)
 -- | Render a right-aligned label for the plant.
 renderPlantLabel :: Text -> Diagram B
 renderPlantLabel = scale boxHeight . alignedText 1 0.5 . unpack
-
 
 -- | Draw Bars for Date Ranges by joining empty and filled rectangles
 -- horiztonally.
