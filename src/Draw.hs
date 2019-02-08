@@ -19,9 +19,12 @@ import           Diagrams.Backend.SVG           ( B
 import           Diagrams.Color.XKCD            ( brownyOrange )
 import           Graphics.SVGFonts              ( textSVG'
                                                 , TextOpts(..)
-                                                , lin2
+                                                )
+import           Graphics.SVGFonts.ReadFont     ( PreparedFont
+                                                , loadFont
                                                 )
 import           System.IO.Unsafe               ( unsafePerformIO )
+import           Paths_planting_dates           ( getDataFileName )
 import           Types
 
 -- | Render all the plants to the given SVG file.
@@ -131,7 +134,7 @@ renderText :: Text -> Diagram B
 renderText t =
     textSVG'
             with { textHeight = (boxHeight + 2 * rowPadding) * 0.66
-                 , textFont   = unsafePerformIO lin2
+                 , textFont   = unsafePerformIO futuraMedium
                  }
             (unpack t)
         # stroke
@@ -229,3 +232,10 @@ monthLabels =
     , "Nov"
     , "Dec"
     ]
+
+
+futuraHeavy :: IO (PreparedFont Double)
+futuraHeavy = getDataFileName "data/FuturaBT-Heavy.svg" >>= loadFont
+
+futuraMedium :: IO (PreparedFont Double)
+futuraMedium = getDataFileName "data/FuturaBT-Medium.svg" >>= loadFont

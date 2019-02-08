@@ -17,6 +17,9 @@ copyright:
 
 extra-source-files:
     - README.md
+data-files:
+    - data/FuturaBT-Medium.svg
+    - data/FuturaBT-Heavy.svg
 
 # Metadata used when publishing your package
 synopsis:
