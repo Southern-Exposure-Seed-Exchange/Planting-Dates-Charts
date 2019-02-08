@@ -15,6 +15,12 @@ stack run "Zones 7-8.xlsx"
 inkscape plants-chart.svg
 ```
 
+TODO:
+
+* Add titles w/ zone numbers(add Part One, Part Two as sub-titles)
+* What to do about spring/fall planting dates overlapping?
+* Show harvest dates? In different color? With legend?
+
 
 ## License
 
