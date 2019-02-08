@@ -17,7 +17,6 @@ copyright:
 
 extra-source-files:
     - README.md
-    - CHANGELOG.md
 
 # Metadata used when publishing your package
 synopsis:
