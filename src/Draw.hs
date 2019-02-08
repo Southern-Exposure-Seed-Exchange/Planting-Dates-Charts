@@ -28,8 +28,8 @@ import           Paths_planting_dates           ( getDataFileName )
 import           Types
 
 -- | Render all the plants to the given SVG file.
-renderPlants :: FilePath -> [Plant] -> IO ()
-renderPlants outputFile ps =
+renderPlants :: FilePath -> Text -> Text -> [Plant] -> IO ()
+renderPlants outputFile title subtitle ps =
     let
         size_        = mkSizeSpec2D Nothing Nothing
         plantRows    = map renderPlant ps
@@ -48,7 +48,10 @@ renderPlants outputFile ps =
                            )
                     )
                 <> alignBR renderMonthLabels
-        finalChart = chartWithMonthLabels # centerXY # pad 1.1
+        chartWithTitle =
+            (renderHeader title subtitle # centerX)
+                === (chartWithMonthLabels # centerX)
+        finalChart = (chartWithTitle # centerXY # pad 1.1)
     in
         renderSVG outputFile size_ finalChart
     where maximum_ xs = if null xs then 0 else maximum xs
@@ -131,12 +134,22 @@ renderPlantLabel :: Text -> Diagram B
 renderPlantLabel = alignR . renderText
 
 renderText :: Text -> Diagram B
-renderText t =
-    textSVG'
-            with { textHeight = (boxHeight + 2 * rowPadding) * 0.66
-                 , textFont   = unsafePerformIO futuraMedium
-                 }
-            (unpack t)
+renderText t = svgText ((boxHeight + 2 * rowPadding) * 0.66) t futuraMedium
+
+renderHeader :: Text -> Text -> Diagram B
+renderHeader title subtitle =
+    headerText 20 title
+        #   centerX
+        === strutY (rowPadding * 0.5)
+        === headerText 10 subtitle
+        #   centerX
+        === strutY (rowPadding * 1.5)
+    where headerText n t = svgText n t futuraHeavy
+
+
+svgText :: Double -> Text -> IO (PreparedFont Double) -> Diagram B
+svgText h t f =
+    textSVG' with { textHeight = h, textFont = unsafePerformIO f } (unpack t)
         # stroke
         # fc black
         # lw none
