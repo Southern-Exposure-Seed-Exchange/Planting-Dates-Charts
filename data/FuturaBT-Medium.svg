@@ -2,7 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
 <metadata>
-Created by FontForge 20190111 at Fri Feb  8 05:24:05 2019
+Created by FontForge 20190111 at Fri Feb  8 17:03:17 2019
  By prikhi
 Copyright 1990-1993 Bitstream Inc.  All rights reserved.
 </metadata>
@@ -34,6 +34,8 @@ q-40 -64 -89 -121.5t-106 -107.5l246 -279h-275z" />
 d="M406 -446q-119 220 -178.5 466t-59.5 519q0 287 59 533t179 460l163 -49q-107 -212 -159 -442.5t-52 -499.5q0 -282 51.5 -510t159.5 -424z" />
     <glyph glyph-name="parenright" unicode=")" horiz-adv-x="621" 
 d="M207 -446l-162 53q108 196 159.5 424t51.5 510q0 269 -51.5 499.5t-159.5 442.5l162 49q120 -214 178.5 -460t58.5 -533q0 -273 -59 -519t-178 -466z" />
+    <glyph glyph-name="hyphen" unicode="-" horiz-adv-x="829" 
+d="M147 571h535v-200h-535v200z" />
     <glyph glyph-name="zero" unicode="0" 
 d="M1145 705q0 -349 -140.5 -546.5t-386.5 -197.5q-249 0 -387.5 199.5t-138.5 560.5q0 358 140 558t389 200q252 0 388 -200.5t136 -573.5zM614 166q146 0 219.5 139.5t73.5 417.5q0 270 -72.5 411.5t-211.5 141.5q-145 0 -219 -141t-74 -416q0 -267 73.5 -410t210.5 -143z
 " />
@@ -182,6 +184,25 @@ d="M215 0h-240l359 510l-307 438h239l133 -196q21 -30 37 -58t29 -57q12 24 27.5 50.
 d="M313 -446h-223l260 528l-348 866h240l174 -491q15 -45 26.5 -91.5t18.5 -94.5q13 50 62 159l5 12l234 506h235z" />
     <glyph glyph-name="z" unicode="z" horiz-adv-x="920" 
 d="M879 0h-881l528 758h-475v190h828l-517 -758h517v-190z" />
+    <hkern u1="&#x2d;" u2="x" k="36" />
+    <hkern u1="&#x2d;" u2="s" k="-38" />
+    <hkern u1="&#x2d;" u2="q" k="-38" />
+    <hkern u1="&#x2d;" u2="o" k="-38" />
+    <hkern u1="&#x2d;" u2="e" k="-38" />
+    <hkern u1="&#x2d;" u2="d" k="-38" />
+    <hkern u1="&#x2d;" u2="c" k="-38" />
+    <hkern u1="&#x2d;" u2="Y" k="159" />
+    <hkern u1="&#x2d;" u2="X" k="73" />
+    <hkern u1="&#x2d;" u2="W" k="112" />
+    <hkern u1="&#x2d;" u2="V" k="120" />
+    <hkern u1="&#x2d;" u2="T" k="188" />
+    <hkern u1="&#x2d;" u2="S" k="-38" />
+    <hkern u1="&#x2d;" u2="Q" k="-75" />
+    <hkern u1="&#x2d;" u2="O" k="-75" />
+    <hkern u1="&#x2d;" u2="J" k="-114" />
+    <hkern u1="&#x2d;" u2="G" k="-75" />
+    <hkern u1="&#x2d;" u2="C" k="-38" />
+    <hkern u1="&#x2d;" u2="A" k="36" />
     <hkern u1="A" u2="w" k="36" />
     <hkern u1="A" u2="v" k="36" />
     <hkern u1="A" u2="Y" k="112" />
@@ -193,19 +214,27 @@ d="M879 0h-881l528 758h-475v190h828l-517 -758h517v-190z" />
     <hkern u1="A" u2="O" k="36" />
     <hkern u1="A" u2="G" k="36" />
     <hkern u1="A" u2="C" k="36" />
+    <hkern u1="A" u2="&#x2d;" k="45" />
     <hkern u1="B" u2="Y" k="36" />
     <hkern u1="B" u2="W" k="36" />
     <hkern u1="B" u2="V" k="36" />
+    <hkern u1="B" u2="&#x2d;" k="-57" />
+    <hkern u1="C" u2="&#x2d;" k="-47" />
     <hkern u1="D" u2="Y" k="73" />
     <hkern u1="D" u2="W" k="36" />
     <hkern u1="D" u2="V" k="36" />
     <hkern u1="D" u2="A" k="36" />
+    <hkern u1="D" u2="&#x2d;" k="-65" />
+    <hkern u1="E" u2="&#x2d;" k="-38" />
     <hkern u1="F" u2="u" k="36" />
     <hkern u1="F" u2="r" k="36" />
     <hkern u1="F" u2="A" k="73" />
+    <hkern u1="F" u2="&#x2d;" k="102" />
     <hkern u1="G" u2="Y" k="36" />
     <hkern u1="G" u2="W" k="36" />
     <hkern u1="G" u2="T" k="36" />
+    <hkern u1="G" u2="&#x2d;" k="-47" />
+    <hkern u1="J" u2="&#x2d;" k="36" />
     <hkern u1="K" u2="y" k="73" />
     <hkern u1="K" u2="u" k="36" />
     <hkern u1="K" u2="o" k="36" />
@@ -217,6 +246,7 @@ d="M879 0h-881l528 758h-475v190h828l-517 -758h517v-190z" />
     <hkern u1="K" u2="T" k="73" />
     <hkern u1="K" u2="O" k="73" />
     <hkern u1="K" u2="C" k="73" />
+    <hkern u1="K" u2="&#x2d;" k="102" />
     <hkern u1="L" u2="y" k="73" />
     <hkern u1="L" u2="Y" k="149" />
     <hkern u1="L" u2="W" k="112" />
@@ -224,11 +254,13 @@ d="M879 0h-881l528 758h-475v190h828l-517 -758h517v-190z" />
     <hkern u1="L" u2="U" k="36" />
     <hkern u1="L" u2="T" k="112" />
     <hkern u1="L" u2="O" k="73" />
+    <hkern u1="L" u2="&#x2d;" k="36" />
     <hkern u1="O" u2="Y" k="73" />
     <hkern u1="O" u2="X" k="36" />
     <hkern u1="O" u2="V" k="36" />
     <hkern u1="O" u2="T" k="73" />
     <hkern u1="O" u2="A" k="36" />
+    <hkern u1="O" u2="&#x2d;" k="-57" />
     <hkern u1="P" u2="s" k="36" />
     <hkern u1="P" u2="r" k="36" />
     <hkern u1="P" u2="o" k="73" />
@@ -236,11 +268,15 @@ d="M879 0h-881l528 758h-475v190h828l-517 -758h517v-190z" />
     <hkern u1="P" u2="e" k="73" />
     <hkern u1="P" u2="a" k="73" />
     <hkern u1="P" u2="A" k="112" />
+    <hkern u1="P" u2="&#x2d;" k="159" />
+    <hkern u1="Q" u2="&#x2d;" k="-57" />
     <hkern u1="R" u2="u" k="36" />
     <hkern u1="R" u2="o" k="36" />
     <hkern u1="R" u2="e" k="36" />
     <hkern u1="R" u2="a" k="36" />
     <hkern u1="R" u2="Y" k="36" />
+    <hkern u1="R" u2="&#x2d;" k="55" />
+    <hkern u1="S" u2="&#x2d;" k="-65" />
     <hkern u1="T" u2="y" k="206" />
     <hkern u1="T" u2="w" k="206" />
     <hkern u1="T" u2="u" k="206" />
@@ -253,7 +289,9 @@ d="M879 0h-881l528 758h-475v190h828l-517 -758h517v-190z" />
     <hkern u1="T" u2="O" k="73" />
     <hkern u1="T" u2="C" k="73" />
     <hkern u1="T" u2="A" k="149" />
+    <hkern u1="T" u2="&#x2d;" k="188" />
     <hkern u1="U" u2="A" k="36" />
+    <hkern u1="U" u2="&#x2d;" k="55" />
     <hkern u1="V" u2="y" k="55" />
     <hkern u1="V" u2="u" k="112" />
     <hkern u1="V" u2="o" k="112" />
@@ -261,6 +299,7 @@ d="M879 0h-881l528 758h-475v190h828l-517 -758h517v-190z" />
     <hkern u1="V" u2="a" k="112" />
     <hkern u1="V" u2="O" k="36" />
     <hkern u1="V" u2="A" k="36" />
+    <hkern u1="V" u2="&#x2d;" k="167" />
     <hkern u1="W" u2="y" k="36" />
     <hkern u1="W" u2="u" k="73" />
     <hkern u1="W" u2="r" k="73" />
@@ -268,8 +307,10 @@ d="M879 0h-881l528 758h-475v190h828l-517 -758h517v-190z" />
     <hkern u1="W" u2="e" k="112" />
     <hkern u1="W" u2="a" k="112" />
     <hkern u1="W" u2="A" k="36" />
+    <hkern u1="W" u2="&#x2d;" k="120" />
     <hkern u1="X" u2="O" k="36" />
     <hkern u1="X" u2="C" k="36" />
+    <hkern u1="X" u2="&#x2d;" k="102" />
     <hkern u1="Y" u2="u" k="215" />
     <hkern u1="Y" u2="o" k="225" />
     <hkern u1="Y" u2="i" k="36" />
@@ -278,5 +319,19 @@ d="M879 0h-881l528 758h-475v190h828l-517 -758h517v-190z" />
     <hkern u1="Y" u2="O" k="73" />
     <hkern u1="Y" u2="C" k="36" />
     <hkern u1="Y" u2="A" k="112" />
+    <hkern u1="Y" u2="&#x2d;" k="243" />
+    <hkern u1="Z" u2="&#x2d;" k="36" />
+    <hkern u1="b" u2="&#x2d;" k="-38" />
+    <hkern u1="e" u2="&#x2d;" k="-38" />
+    <hkern u1="g" u2="&#x2d;" k="36" />
+    <hkern u1="k" u2="&#x2d;" k="83" />
+    <hkern u1="o" u2="&#x2d;" k="-38" />
+    <hkern u1="p" u2="&#x2d;" k="-38" />
+    <hkern u1="r" u2="&#x2d;" k="73" />
+    <hkern u1="s" u2="&#x2d;" k="-38" />
+    <hkern u1="t" u2="&#x2d;" k="45" />
+    <hkern u1="w" u2="&#x2d;" k="-38" />
+    <hkern u1="x" u2="&#x2d;" k="63" />
+    <hkern u1="y" u2="&#x2d;" k="36" />
   </font>
 </defs></svg>
