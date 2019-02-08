@@ -15,6 +15,9 @@ import           Control.Lens                   ( (^.)
                                                 )
 import           Control.Monad                  ( join )
 import qualified Data.ByteString.Lazy          as L
+import           Data.Char                      ( isAlpha
+                                                , toUpper
+                                                )
 import           Data.Maybe                     ( mapMaybe
                                                 , maybeToList
                                                 )
@@ -37,7 +40,7 @@ parsePlants xlsx =
 -- Rows with no Plant Name or no Planting Ranges are ignored.
 parsePlant :: (Int, [(Int, Cell)]) -> Maybe Plant
 parsePlant (_, cells) =
-    let name          = maybeTextColumn 0
+    let name          = upperCase . T.toLower <$> maybeTextColumn 0
         plantingRange = rangeFromCells 1 2
         fallRange     = rangeFromCells 5 6
         ranges_       = maybeToList plantingRange ++ maybeToList fallRange
@@ -54,6 +57,14 @@ parsePlant (_, cells) =
         runner cs = case cs of
             (i, v) : rest -> if i - 1 == n then _cellValue v else runner rest
             []            -> Nothing
+    upperCase :: Text -> Text
+    upperCase t =
+        T.unwords . map (fst . T.foldl upperFirst ("", False)) $ T.words t
+      where
+        upperFirst (acc, doneProcessing) l
+            | doneProcessing = (acc <> T.singleton l, True)
+            | isAlpha l      = (acc <> T.singleton (toUpper l), True)
+            | otherwise      = (acc <> T.singleton l, False)
 
 -- | Parse a Start & End Date.
 parseDateRange :: Text -> Text -> Maybe DateRange
