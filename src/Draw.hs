@@ -53,8 +53,11 @@ renderPlants outputFile title subtitle ps =
                 === (chartWithMonthLabels # centerX)
         finalChart = (chartWithTitle # centerXY # pad 1.1)
     in
-        renderSVG outputFile size_ finalChart
-    where maximum_ xs = if null xs then 0 else maximum xs
+        renderSVG outputFile size_ $ withBackground finalChart
+  where
+    maximum_ xs = if null xs then 0 else maximum xs
+    withBackground diagram =
+        diagram <> rect (width diagram) (height diagram) # fc white # lw 0.75
 
 
 -- | The Height of the Date Range Boxes.
