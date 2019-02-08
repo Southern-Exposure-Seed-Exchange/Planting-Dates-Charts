@@ -17,7 +17,7 @@ import           Diagrams.Backend.SVG           ( B
                                                 , renderSVG
                                                 )
 import           Diagrams.Color.XKCD            ( brownyOrange )
-import           Graphics.SVGFonts              ( textSVG'
+import           Graphics.SVGFonts              ( textSVG_
                                                 , TextOpts(..)
                                                 )
 import           Graphics.SVGFonts.ReadFont     ( PreparedFont
@@ -138,29 +138,26 @@ renderPlant p =
 
 -- | Render a right-aligned label for the plant.
 renderPlantLabel :: Text -> Diagram B
-renderPlantLabel = alignR . renderText
+renderPlantLabel = renderText
 
 renderText :: Text -> Diagram B
-renderText t = svgText ((boxHeight + 2 * rowPadding) * 0.66) t futuraMedium
+renderText t = svgText ((boxHeight + 2 * rowPadding) * 0.66) t futuraMedium # fc black
 
 renderHeader :: Text -> Text -> Diagram B
 renderHeader title subtitle =
     headerText 20 title
-        #   centerX
+        #   centerX # fc black
         === strutY (rowPadding * 0.5)
         === headerText 10 subtitle
-        #   centerX
+        #   centerX # fc black
         === strutY (rowPadding * 1.5)
     where headerText n t = svgText n t futuraHeavy
 
 
 svgText :: Double -> Text -> IO (PreparedFont Double) -> Diagram B
 svgText h t f =
-    textSVG' with { textHeight = h, textFont = unsafePerformIO f } (unpack t)
-        # stroke
-        # fc black
+    textSVG_ with { textHeight = h, textFont = unsafePerformIO f } (unpack t)
         # lw none
-        # alignR
 
 -- | Draw Bars for Date Ranges by joining empty and filled rectangles
 -- horizontally.
