@@ -12,7 +12,7 @@ multiple bars are to be shown).
 ```
 stack build
 stack run "Zones 7-8.xlsx"
-inkscape plants-chart.svg
+inkscape plants-chart-part-one.svg
 ```
 
 TODO:
