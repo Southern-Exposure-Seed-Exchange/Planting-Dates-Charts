@@ -16,7 +16,11 @@ import           Diagrams.Backend.SVG           ( B
                                                 , renderSVG
                                                 )
 import           Diagrams.Color.XKCD            ( brownyOrange )
-import           Graphics.SVGFonts              ( textSVG )
+import           Graphics.SVGFonts              ( textSVG'
+                                                , TextOpts(..)
+                                                , lin2
+                                                )
+import           System.IO.Unsafe               ( unsafePerformIO )
 import           Types
 
 -- | Render all the plants to the given SVG file.
@@ -35,25 +39,61 @@ renderPlants outputFile ps = do
 boxHeight :: Num a => a
 boxHeight = 5
 
+-- | The Space Between Each Row & the Dividers.
+rowPadding :: Num a => a
+rowPadding = 5
+
+-- | Render the X-axis Scale & Grid Lines
+renderGrid :: Double -> Double -> Diagram B
+renderGrid w h =
+    let
+        baseLine =
+            fromVertices [p2 (0, 0), p2 (w, 0)] # strokeP # lw 0.45 # lc brown
+        verticalLine =
+            fromVertices [p2 (0, 0), p2 (0, h)]
+                # strokeP
+                # lw 0.35
+                # lc brown
+                # opacity 0.6
+                # dashing [1, 1] 0
+        monthLines = verticalLine ||| hcat
+            (map (\w_ -> alignR $ strutX (fromIntegral w_) ||| verticalLine)
+                 daysPerMonth
+            )
+    in
+        alignBR baseLine <> alignBR monthLines
+
 -- | Draw a row seperator.
 renderRowSep :: Double -> Diagram B
 renderRowSep w =
     strokeP (fromVertices [p2 (0, 0), p2 (w, 0)])
         # lw 0.2
         # alignR
-        # opacity 0.45
+        # opacity 0.25
         # lcA brownyOrange
 
 -- | Draw a Plant's row.
 renderPlant :: Plant -> Diagram B
 renderPlant p =
-    alignR $ renderPlantLabel (plant p) ||| renderDateRanges (ranges p)
+    alignR $ renderPlantLabel (plant p) ||| strutX 5 ||| renderDateRanges
+        (ranges p)
 
 
 -- | Render a right-aligned label for the plant.
 renderPlantLabel :: Text -> Diagram B
-renderPlantLabel t =
-    stroke (textSVG (unpack t) (boxHeight * 1.5)) # fc black # lw none # alignR
+renderPlantLabel = alignR . renderText
+
+renderText :: Text -> Diagram B
+renderText t =
+    textSVG'
+            with { textHeight = boxHeight * 1.25
+                 , textFont   = unsafePerformIO lin2
+                 }
+            (unpack t)
+        # stroke
+        # fc black
+        # lw none
+        # alignR
 
 -- | Draw Bars for Date Ranges by joining empty and filled rectangles
 -- horiztonally.
