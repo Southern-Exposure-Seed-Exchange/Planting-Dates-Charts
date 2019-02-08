@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -25,13 +26,28 @@ import           Types
 
 -- | Render all the plants to the given SVG file.
 renderPlants :: FilePath -> [Plant] -> IO ()
-renderPlants outputFile ps = do
-    let size_          = mkSizeSpec2D Nothing Nothing
-        barsWithLabels = map renderPlant ps
-        maximumWidth   = maximum_ $ map width barsWithLabels
-    renderSVG outputFile size_ $ pad 1.1 $ centerXY $ vsep 5 $ intersperse
-        (renderRowSep maximumWidth)
-        barsWithLabels
+renderPlants outputFile ps =
+    let
+        size_        = mkSizeSpec2D Nothing Nothing
+        plantRows    = map renderPlant ps
+        rowSeparator = renderRowSep $ maximum_ $ map width plantRows
+        chartRows    = vsep
+            rowPadding
+            (rowSeparator : intersperse rowSeparator plantRows ++ [rowSeparator]
+            )
+        (chartWidth, chartHeight) = (width chartRows, height chartRows)
+        chartWithMonthLabels =
+            alignTR
+                    (  alignBR renderMonthLabels
+                    <> alignTR
+                           (  alignR chartRows
+                           <> renderGrid chartWidth chartHeight
+                           )
+                    )
+                <> alignBR renderMonthLabels
+        finalChart = chartWithMonthLabels # centerXY # pad 1.1
+    in
+        renderSVG outputFile size_ finalChart
     where maximum_ xs = if null xs then 0 else maximum xs
 
 
@@ -46,22 +62,50 @@ rowPadding = 3
 -- | Render the X-axis Grid Lines
 renderGrid :: Double -> Double -> Diagram B
 renderGrid w h =
+    let baseLine =
+                fromVertices [p2 (0, 0), p2 (w, 0)]
+                    # strokeP
+                    # lw 0.45
+                    # lc brown
+                    # alignR
+        monthLines = alignTR $ renderMonthLines h
+    in  baseLine === monthLines === baseLine
+
+-- | Render the Month Labels & Separators
+renderMonthLabels :: Diagram B
+renderMonthLabels =
     let
-        baseLine =
-            fromVertices [p2 (0, 0), p2 (w, 0)] # strokeP # lw 0.45 # lc brown
-        verticalLine =
-            fromVertices [p2 (0, 0), p2 (0, h)]
-                # strokeP
-                # lw 0.35
-                # lc brown
-                # opacity 0.6
-                # dashing [1, 1] 0
-        monthLines = verticalLine ||| hcat
+        labels      = foldr buildLabel mempty $ zip daysPerMonth monthLabels
+        labelHeight = height labels
+        monthLines  = alignTR $ renderMonthLines $ labelHeight + 2 * rowPadding
+    in
+        monthLines
+            <> alignTR (strutY rowPadding === labels === strutY rowPadding)
+  where
+      -- | Build and prepend a label & invisible bounding box.
+    buildLabel :: (Integer, Text) -> Diagram B -> Diagram B
+    buildLabel (w, t) acc =
+        let label = renderText t
+            textBox =
+                    centerXY (rect (fromIntegral w) (height label) # lw none)
+                        <> centerXY label
+        in  alignR textBox ||| alignL acc
+
+
+-- | Render the vertical Month lines, aligned to the right.
+renderMonthLines :: Double -> Diagram B
+renderMonthLines h =
+    let verticalLine =
+                fromVertices [p2 (0, 0), p2 (0, h)]
+                    # strokeP
+                    # lw 0.35
+                    # lc brown
+                    # opacity 0.6
+                    # dashing [1, 1] 0
+    in  verticalLine ||| hcat
             (map (\w_ -> alignR $ strutX (fromIntegral w_) ||| verticalLine)
                  daysPerMonth
             )
-    in
-        alignBR baseLine <> alignBR monthLines
 
 -- | Draw a row separator.
 renderRowSep :: Double -> Diagram B
@@ -168,3 +212,20 @@ dayOfYear date =
 -- | The number of days in each month of the year.
 daysPerMonth :: [Integer]
 daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+-- | The labels for each month.
+monthLabels :: [Text]
+monthLabels =
+    [ "Jan"
+    , "Feb"
+    , "Mar"
+    , "Apr"
+    , "May"
+    , "Jun"
+    , "Jul"
+    , "Aug"
+    , "Sep"
+    , "Oct"
+    , "Nov"
+    , "Dec"
+    ]
