@@ -138,7 +138,10 @@ renderRowSep w =
 -- | Draw a Plant's row.
 renderPlant :: Plant -> Diagram B
 renderPlant p = alignR $ hcat
-    [renderPlantLabel (plant p), strutX 5, renderDateRanges (ranges p)]
+    [ renderPlantLabel (plant p) # centerY
+    , strutX 5
+    , renderDateRanges (ranges p)
+    ]
 
 
 -- | Render a right-aligned label for the plant.
