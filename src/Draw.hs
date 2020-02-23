@@ -1,23 +1,36 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
-module Draw where
+module Draw
+    ( renderPlants
+    )
+where
 
-import           Data.List                      ( intersperse )
+import           Data.List                      ( intersperse
+                                                , sort
+                                                )
 import           Data.Text                      ( Text
                                                 , unpack
                                                 )
 import           Diagrams.Prelude        hiding ( start
                                                 , end
+                                                , orange
+                                                , normalize
+                                                , grey
                                                 )
 import           Diagrams.Backend.SVG           ( B
                                                 , renderSVG
                                                 )
 import           Diagrams.Color.XKCD            ( brownyOrange
                                                 , slateGrey
+                                                , orange
+                                                , emerald
+                                                , grey
+                                                , darkGrey
                                                 )
 import           Graphics.SVGFonts              ( textSVG_
                                                 , TextOpts(..)
@@ -28,6 +41,13 @@ import           Graphics.SVGFonts.ReadFont     ( PreparedFont
 import           System.IO.Unsafe               ( unsafePerformIO )
 import           Paths_planting_dates           ( getDataFileName )
 import           Types
+
+
+-- Styles
+-- TODO: It'd be cool if *all* the styling constants were pulled out of the
+-- rendering functions into a Style datatype that we passed via a Reader to
+-- the rendering functions. Then we could take a YAML config for custom
+-- styles & offer some CLI arguments to tweak them for individual runs.
 
 -- | The Height of the Date Range Boxes.
 boxHeight :: Num a => a
@@ -41,6 +61,31 @@ rowPadding = 3
 labelTextHeight :: Double
 labelTextHeight = (boxHeight + 2 * rowPadding) * 0.66
 
+greyscale :: Bool
+greyscale = False
+
+-- | The Fill Color of the Harvesting Range Boxes
+harvestingColor :: AlphaColour Double
+harvestingColor = if greyscale then darkGrey else emerald
+
+-- | The Fill Color of the Planting Range Boxes
+plantingColor :: AlphaColour Double
+plantingColor = if greyscale then grey else orange
+
+rangeLineWidth :: Fractional a => a
+rangeLineWidth = 0.2
+
+-- | Opacity of the Row Separators Between Plants.
+plantSeparatorOpacity :: Double
+plantSeparatorOpacity = 0.5
+
+-- | Opacity of the Row Separators Between a Plant's Bars.
+barSeparatorOpacity :: Double
+barSeparatorOpacity = 0.35
+
+-- | Opacity of the Vertical Month Grid Lines.
+monthLineOpacity :: Double
+monthLineOpacity = 0.65
 
 -- | Render all the plants to the given SVG file.
 renderPlants :: FilePath -> Text -> Text -> [Plant] -> IO ()
@@ -55,28 +100,32 @@ renderPlants outputFile title subtitle ps =
             chartRows
                 # vsep rowPadding
                 # withGrid
-                # withTitle
+                # withLegend
+                # withTitle title subtitle
                 # centerXY
                 # pad 1.1
-                # withBackground
+                # withBackground 0.75
     in
         renderSVG outputFile size_ finalChart
-  where
-    maximum_ xs = if null xs then 0 else maximum xs
-    withGrid diagram =
-        alignTR
-                (  alignTR renderMonthLabels
-                <> alignBR
-                       (  alignR diagram
-                       <> renderGrid (width diagram) (height diagram)
-                       )
-                )
-            <> alignBR renderMonthLabels
-    withTitle diagram =
-        (renderHeader title subtitle # centerX) === (diagram # centerX)
-    withBackground diagram =
-        diagram <> rect (width diagram) (height diagram) # fc white # lw 0.75
 
+
+-- Page Elements
+
+-- | Place a white background with a black stroke behind the diagram
+withBackground :: Measured Double Double -> Diagram B -> Diagram B
+withBackground strokeWidth diagram =
+    diagram
+        #  centerXY
+        <> rect (width diagram) (height diagram)
+        #  fc white
+        #  lw strokeWidth
+
+-- | Place a Header above the diagram.
+withTitle :: Text -> Text -> Diagram B -> Diagram B
+withTitle title subtitle diagram =
+    vcat $ map centerX [renderHeader title subtitle # centerX, diagram]
+
+-- | Render the Header with a Title & SubTitle.
 renderHeader :: Text -> Text -> Diagram B
 renderHeader title subtitle =
     let topHeader =
@@ -92,6 +141,48 @@ renderHeader title subtitle =
             , strutY (rowPadding * 1.75)
             ]
     where headerText n t = svgText n t futuraHeavy
+
+-- | Render a Legend below the Diagram.
+withLegend :: Diagram B -> Diagram B
+withLegend diagram = vcat $ map
+    alignL
+    [ diagram
+    , strutY 5
+    , vcat
+        (map
+            alignL
+            [ legendLabel plantingColor "Planting"
+            , strutY 2
+            , legendLabel harvestingColor "Harvesting"
+            ]
+        )
+    # centerXY
+    # pad 1.5
+    # withBackground 0.33
+    ]
+  where
+    legendLabel :: AlphaColour Double -> Text -> Diagram B
+    legendLabel color label = hcat $ map
+        centerY
+        [ rect 10 boxHeight # fcA color # lc black # lw 0.25
+        , strutX 2
+        , svgText (labelTextHeight * 0.85) label futuraMedium # fc black
+        ]
+
+
+-- GRID
+
+-- | Place the Month Labels & Grid Behind the Diagram.
+withGrid :: Diagram B -> Diagram B
+withGrid diagram =
+    alignTR
+            (  alignTR renderMonthLabels
+            <> alignBR
+                   (  alignR diagram
+                   <> renderGrid (width diagram) (height diagram)
+                   )
+            )
+        <> alignBR renderMonthLabels
 
 -- | Render the X-axis Grid Lines
 renderGrid :: Double -> Double -> Diagram B
@@ -134,7 +225,7 @@ renderMonthLines h =
                     # strokeP
                     # lw 0.35
                     # lc brown
-                    # opacity 0.6
+                    # opacity monthLineOpacity
                     # dashing [1, 1] 0
     in
         hcat
@@ -151,63 +242,55 @@ renderRowSep w =
     strokeP (fromVertices [p2 (0, 0), p2 (w, 0)])
         # lw 0.2
         # alignR
-        # opacity 0.25
+        # opacity plantSeparatorOpacity
         # lcA brownyOrange
 
 -- | Draw a Plant's row.
 renderPlant :: Plant -> Diagram B
-renderPlant p = alignR $ hcat
-    [ renderPlantLabel (plant p) # centerY
-    , strutX 5
-    , renderDateRanges (ranges p)
-    ]
+renderPlant p = alignR $ hcat $ map
+    centerY
+    [renderPlantLabel (plant p), strutX 5, renderBars (ranges p)]
 
 
 -- | Render a right-aligned label for the plant.
 renderPlantLabel :: Text -> Diagram B
 renderPlantLabel = renderText
 
-renderText :: Text -> Diagram B
-renderText t = svgText labelTextHeight t futuraMedium # fc black
-
-
+-- | Render text as an SVG path with the given height & font. The text will
+-- be transparent, you still need to set the fill colour yourself.
+--
+-- Note: Uses unsafePerformIO! We should instead load the fonts in the Main
+-- module & pass them around so we only have to load them once.
+--
+-- TODO: Take a color as an arg so we can't accidentally add transparent
+-- text?
 svgText :: Double -> Text -> IO (PreparedFont Double) -> Diagram B
 svgText h t f =
     textSVG_ with { textHeight = h, textFont = unsafePerformIO f } (unpack t)
         # lw none
 
--- | Draw Bars for Date Ranges by joining empty and filled rectangles
--- horizontally.
-renderDateRanges :: [DateRange] -> Diagram B
-renderDateRanges ranges_ = case ranges_ of
-    []            -> mempty
-    [singleRange] -> renderSingleDateRange singleRange
-    rs            -> renderMultipleRanges rs
+-- | Render the RangeBar rows for a Plant. Plants with multiple rows will
+-- have light row separators between them.
+renderBars :: [RangeBar] -> Diagram B
+renderBars = vcat . map alignR . intersperse barRowSeperator . map renderBarRow
+  where
+    barRowSeperator = vcat
+        [strutY 1, renderRowSep 365 # opacity barSeparatorOpacity, strutY 1]
+    renderBarRow = \case
+        SingleBar r -> renderRanges $ normalize r
+        MultiBar rs ->
+            renderRanges $ mergeAdjacent $ sort $ concatMap normalize rs
 
 
--- | Render a Single Date Range by Adding Empty Before/After Rectangles
-renderSingleDateRange :: DateRange -> Diagram B
-renderSingleDateRange range =
-    let dayOfStart  = dayOfYear $ start range
-        dayOfEnd    = dayOfYear $ end range
-        beforeRange = if dayOfStart /= 1
-            then emptyRangeBox (fromIntegral dayOfStart - 1)
-            else mempty
-        afterRange = if dayOfEnd /= 365
-            then emptyRangeBox (365 - fromIntegral dayOfEnd)
-            else mempty
-    in  beforeRange ||| rangeBox range ||| afterRange
-
--- | Render Multiple Date Ranges By Interspersing Them with Empty
--- Rectangles.
-renderMultipleRanges :: [DateRange] -> Diagram B
-renderMultipleRanges ranges_ =
+-- | Render Date Ranges By Interspersing Them with Empty Rectangles.
+renderRanges :: [DateRange] -> Diagram B
+renderRanges ranges_ =
     let (diagram, lastDay) = foldl renderEmptyAndRange (mempty, 0) ranges_
     in  if lastDay == 365
             then diagram
             else diagram ||| emptyRangeBox (365 - lastDay)
   where
-      -- | Render the previous empty range and the current DateRange.
+    -- Render the previous empty range and the current DateRange.
     renderEmptyAndRange
         :: (Diagram B, Integer) -> DateRange -> (Diagram B, Integer)
     renderEmptyAndRange (acc, lastRangeEnd) range =
@@ -222,33 +305,29 @@ renderMultipleRanges ranges_ =
                             (fromIntegral $ dayOfStart - lastRangeEnd - 1)
                     ||| filledBox
 
+
 -- | Draw a filled rectangle with the appropriate width for a DateRange.
 rangeBox :: DateRange -> Diagram B
 rangeBox DateRange {..} =
     let dayOfStart = dayOfYear start
         dayOfEnd   = dayOfYear end
+        color      = case rangeType of
+            Planting   -> plantingColor
+            Harvesting -> harvestingColor
     in  rect (fromIntegral $ dayOfEnd - dayOfStart + 1) boxHeight
-            # lw 0.2
-            # fc orange
+            # lw rangeLineWidth
+            # fcA color
 
 -- | Draw a transparent rectangle with no border.
 emptyRangeBox :: Integer -> Diagram B
 emptyRangeBox w = rect (fromIntegral w) boxHeight # lw 0
 
 
+-- UTILS
 
--- Calculate the day number for a 'Date', where January 1st is 1 & December
--- 31st is 365.
-dayOfYear :: Date -> Integer
-dayOfYear date =
-    let previousMonths =
-                sum $ take (fromIntegral $ month date - 1) daysPerMonth
-    in  previousMonths + day date
-
-
--- | The number of days in each month of the year.
-daysPerMonth :: [Integer]
-daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+-- | Render some black text in Futura Medium.
+renderText :: Text -> Diagram B
+renderText t = svgText labelTextHeight t futuraMedium # fc black
 
 -- | The labels for each month.
 monthLabels :: [Text]
@@ -267,9 +346,16 @@ monthLabels =
     , "Dec"
     ]
 
+-- | Determine the maximum number or return 0 for the empty list.
+maximum_ :: (Num a, Ord a) => [a] -> a
+maximum_ xs = if null xs then 0 else maximum xs
 
+-- | Load the customized FuturaBT Heavy font. This has many symbols
+-- stripped out to imporve the load time.
 futuraHeavy :: IO (PreparedFont Double)
 futuraHeavy = getDataFileName "data/FuturaBT-Heavy.svg" >>= loadFont
 
+-- | Load the customized FuturaBT Medium font. This has many symbols
+-- stripped out to imporve the load time.
 futuraMedium :: IO (PreparedFont Double)
 futuraMedium = getDataFileName "data/FuturaBT-Medium.svg" >>= loadFont
