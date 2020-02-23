@@ -9,6 +9,7 @@ import           Draw                           ( renderPlants )
 
 
 -- | Parse plants form the given XLSX file & print them out.
+-- TODO: Split conditionally
 app :: FilePath -> Text -> IO ()
 app xlsxPath title = do
     plants <- parseXlsx xlsxPath
@@ -17,3 +18,4 @@ app xlsxPath title = do
         partTwo    = drop halfLength plants
     renderPlants (unpack title <> "-part-one.svg") title "(Part One)" partOne
     renderPlants (unpack title <> "-part-two.svg") title "(Part Two)" partTwo
+    renderPlants (unpack title <> ".svg")          title ""           plants
